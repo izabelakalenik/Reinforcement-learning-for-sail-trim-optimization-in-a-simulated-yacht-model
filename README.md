@@ -49,7 +49,7 @@ Training and evaluation use a new Gymnasium environment, `SailTrimEnv`, which ca
 - `"human"` - a live pygame window (shown below) to watch the agent trim in real time,
 - `"rgb_array"` - returns each frame as an RGB array, e.g. to record a video.
 
-The mode is selected by the `RENDER_MODE` setting in [`config.py`](config.py).
+The mode is selected by the `RENDER_MODE` setting in [`config.py`](main/config.py).
 
 <p align="center">
   <img alt="SailTrimEnv visualization" src="https://github.com/user-attachments/assets/be6fbe27-4d93-455f-b6c2-7096d9a8d1bd" width="410">
@@ -95,7 +95,7 @@ $env:PYTHONIOENCODING = "utf-8"
 ## Running the full pipeline
 
 All scripts run as modules from the repository root and take **no command-line arguments** -
-settings (algorithms, seeds, step counts, paths) are in [`config.py`](config.py).
+settings (algorithms, seeds, step counts, paths) are in [`config.py`](main/config.py).
 
 **1. Prepare the data** - download the necessary datasets and place them in the appropriate directories (only needed once - the processed CSVs are already included):
 
