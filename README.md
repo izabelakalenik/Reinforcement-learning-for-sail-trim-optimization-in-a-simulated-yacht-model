@@ -52,8 +52,9 @@ Training and evaluation use a new Gymnasium environment, `SailTrimEnv`, which ca
 The mode is selected by the `RENDER_MODE` setting in [`config.py`](config.py).
 
 <p align="center">
-  <img src="nowa_wizualizacja.png" alt="SailTrimEnv visualization" width="410">
+  <img alt="SailTrimEnv visualization" src="https://github.com/user-attachments/assets/be6fbe27-4d93-455f-b6c2-7096d9a8d1bd" width="410">
 </p>
+
 
 ## Data
 
