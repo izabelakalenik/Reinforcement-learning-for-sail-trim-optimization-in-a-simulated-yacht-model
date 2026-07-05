@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sail-trim-simulator"
+version = "0.1.0"
+description = "A sail trim simulation and reinforcement learning project"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+keywords = ["reinforcement learning", "gymnasium", "sailing", "simulation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "gymnasium>=0.26",
+    "pygame",
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "stable-baselines3>=2.0",
+    "torch",
+    "xarray",
+    "netCDF4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["simulation", "training"]

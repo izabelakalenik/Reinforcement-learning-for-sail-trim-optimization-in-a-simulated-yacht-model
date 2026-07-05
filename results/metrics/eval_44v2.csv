@@ -1,0 +1,5 @@
+algo,n,wind,overall,overall_effceil,nogo,close,beam,broad,run,nogo_effceil,close_effceil,beam_effceil,broad_effceil,run_effceil
+PPO,120,wind_data_gdansk_test.csv,0.4908,0.5283,0.4174,0.2127,0.2476,0.7493,0.6254,0.4638,0.2913,0.2906,0.7921,0.5638
+SAC,120,wind_data_gdansk_test.csv,0.7079,0.7607,0.4129,0.4277,0.794,0.9256,1.0362,0.4592,0.5556,0.9182,0.9704,0.9356
+DDPG,120,wind_data_gdansk_test.csv,0.6619,0.7108,0.4164,0.4876,0.8252,0.7234,1.0642,0.4644,0.6344,0.9528,0.7432,0.9613
+TD3,120,wind_data_gdansk_test.csv,0.5703,0.612,0.3996,0.4766,0.8052,0.462,1.0791,0.4452,0.6204,0.9334,0.4636,0.9746
