@@ -1,5 +1,5 @@
 from training.train import train
-from config import (
+from main.config import (
     TIME_STEPS, MAX_EPISODE_STEPS, WIND_TRAIN, WIND_VAL, ALGORITHMS, SEEDS, SUFFIX, MODELS_DIR,
     RENDER_MODE,
 )

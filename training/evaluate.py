@@ -13,7 +13,7 @@ from simulation.gym_sailing.physics.sailboat import SailBoat
 from simulation.gym_sailing.utils.angles import norm
 from data.polar_data_preprocessing import build_polar_interpolator_from_csv
 from training.helpers import StaticNormalizeObs
-from config import (
+from main.config import (
     TIME_STEPS, SEEDS, SUFFIX, N_EPISODES, EVAL_SEED, WIND_TEST,
     FIXED_HEADING, BANDS_ORDER, DEFAULT_POLAR_CSV, MODELS_DIR,
 )

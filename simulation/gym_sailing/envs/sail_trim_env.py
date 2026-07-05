@@ -3,7 +3,7 @@ from collections import deque
 import gymnasium as gym
 import numpy as np
 import pandas as pd
-from config import DEFAULT_POLAR_CSV, DEFAULT_WIND_CSV, FIXED_HEADING
+from main.config import DEFAULT_POLAR_CSV, DEFAULT_WIND_CSV, FIXED_HEADING
 from data.polar_data_preprocessing import build_polar_interpolator_from_csv
 from simulation.gym_sailing.physics.sailboat import SailBoat
 from simulation.gym_sailing.utils.angles import norm

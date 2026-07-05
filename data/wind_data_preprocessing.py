@@ -1,6 +1,6 @@
 import xarray as xr
 import numpy as np
-from config import DEFAULT_WIND_CSV, WIND_RAW_NC
+from main.config import DEFAULT_WIND_CSV, WIND_RAW_NC
 
 
 def calculate_wind_speed_direction(u10, v10):

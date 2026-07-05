@@ -8,7 +8,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 from data.polar_data_preprocessing import build_polar_interpolator_from_csv
 from simulation.gym_sailing.utils.angles import norm
-from config import FIXED_HEADING, DEFAULT_POLAR_CSV, DEFAULT_WIND_CSV
+from main.config import FIXED_HEADING, DEFAULT_POLAR_CSV, DEFAULT_WIND_CSV
 
 H = FIXED_HEADING 
 CL_MAX, CD_MAX = 1.5, 2.5  

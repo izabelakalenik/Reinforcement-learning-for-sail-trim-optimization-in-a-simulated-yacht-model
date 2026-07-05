@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from scipy.interpolate import RegularGridInterpolator
-from config import DEFAULT_POLAR_CSV, POLAR_RAW_POL
+from main.config import DEFAULT_POLAR_CSV, POLAR_RAW_POL
 
 """
 Assumptions:

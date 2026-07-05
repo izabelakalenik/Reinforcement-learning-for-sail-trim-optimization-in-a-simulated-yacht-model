@@ -5,7 +5,7 @@ import pandas as pd
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from config import SEEDS, SUFFIX, MAX_EPISODE_STEPS, ALGORITHMS, SMOOTH, MIN_REF_SPEED, METRICS_DIR
+from main.config import SEEDS, SUFFIX, MAX_EPISODE_STEPS, ALGORITHMS, SMOOTH, MIN_REF_SPEED, METRICS_DIR
 
 THRESHOLDS = (0.6, 0.7)   # trim-efficiency levels for the "steps to reach" metric
 

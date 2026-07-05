@@ -8,7 +8,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 from training.evaluate import make_eval_venv, ALGOS, build_ceiling_efficiency_lookup
 from utils.plot_deterministic import _scatter_seeds
-from config import (TIME_STEPS, SEEDS, SUFFIX, N_EPISODES, EVAL_SEED, ALGORITHMS,
+from main.config import (TIME_STEPS, SEEDS, SUFFIX, N_EPISODES, EVAL_SEED, ALGORITHMS,
                     COLORS, WIND_TEST, METRICS_DIR, PLOTS_DIR_EVAL, TWA_BINS, BAND_LABELS,
                     MODELS_DIR)
 

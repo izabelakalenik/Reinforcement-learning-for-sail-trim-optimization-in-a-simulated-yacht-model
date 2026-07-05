@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from config import SEEDS, SUFFIX, ALGORITHMS, COLORS, PLOTS_DIR_EVAL, BANDS_ORDER, BAND_LABELS
+from main.config import SEEDS, SUFFIX, ALGORITHMS, COLORS, PLOTS_DIR_EVAL, BANDS_ORDER, BAND_LABELS
 from utils.paths import results_csv_path
 
 

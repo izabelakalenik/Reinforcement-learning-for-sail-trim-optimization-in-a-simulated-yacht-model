@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from config import (SEEDS, SUFFIX, ALGORITHMS, COLORS, SMOOTH,
+from main.config import (SEEDS, SUFFIX, ALGORITHMS, COLORS, SMOOTH,
                     MIN_REF_SPEED, METRICS_DIR, PLOTS_DIR_TRAIN)
 PLOTS_DIR_TRAIN.mkdir(parents=True, exist_ok=True)
 

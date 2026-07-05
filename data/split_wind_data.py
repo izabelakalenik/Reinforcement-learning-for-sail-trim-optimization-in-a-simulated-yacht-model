@@ -5,7 +5,7 @@ import pandas as pd
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from config import DEFAULT_WIND_CSV
+from main.config import DEFAULT_WIND_CSV
 
 CYCLE = 7
 TRAIN_WEEKS = {0, 1, 2, 3, 4}

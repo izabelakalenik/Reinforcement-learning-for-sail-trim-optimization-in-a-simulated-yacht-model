@@ -6,7 +6,7 @@ from scipy import stats
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from config import SEEDS, SUFFIX, ALGORITHMS, METRICS_DIR
+from main.config import SEEDS, SUFFIX, ALGORITHMS, METRICS_DIR
 from training.learning_speed import _seed_csvs, _curve_metrics
 
 ALPHA = 0.05

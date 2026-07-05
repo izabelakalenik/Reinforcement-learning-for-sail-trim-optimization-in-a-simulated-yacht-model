@@ -1,4 +1,4 @@
-from config import METRICS_DIR
+from main.config import METRICS_DIR
 
 
 def results_csv_path(suffix):
