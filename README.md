@@ -162,7 +162,7 @@ python -m training.statistical_tests      # pairwise t Welch / U Mann-Whitney
 python -m utils.plot_training_results     # training curves & summaries
 python -m utils.plot_deterministic        # test plots: overall, per point-of-sail, ceiling
 python -m utils.plot_wind_speed           # test plots: per wind speed + heatmap
-python -m utils.plot_compute_time         # compute cost: ms/step, steps and time to threshold (needs step 4)
+python -m utils.plot_compute_time         # compute cost: ms/step, steps and time to threshold
 ```
 
 ## Results
