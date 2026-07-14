@@ -1,6 +1,6 @@
 import math
 from pathlib import Path
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(__file__).resolve().parents[1]
 
 # --- simulation ---
 FIXED_HEADING = math.pi / 2
@@ -15,8 +15,13 @@ RENDER_MODE = None
 TIME_STEPS = 500_000                          # steps per training run
 MAX_EPISODE_STEPS = 1500                      # steps per episode
 SEEDS = (42, 43, 44, 45, 46)                  
-SUFFIX = "v2"
-ALGORITHMS = ("SAC", "DDPG", "TD3", "PPO")       
+SUFFIX = "v3"                                 # ALL RESULTS ARE WITH V2 SUFFIX (CHANGED TO V3 FOR NEW RESULTS)
+ALGORITHMS = ("SAC", "DDPG", "TD3", "PPO")
+
+# --- validation during training (best-model checkpointing) ---
+VAL_EPISODES = 12                             # deterministic episodes per validation pass
+VAL_MAX_STEPS = 400                           # episode horizon of the validation env
+EVAL_FREQ = 20_000                            # steps between validation passes
 
 # --- evaluation ---
 N_EPISODES = 120                              # deterministic test episodes per algorithm
@@ -24,6 +29,17 @@ EVAL_SEED = 4242                              # fixed wind draws during evaluati
 MIN_REF_SPEED = 0.5                           # m/s; below this a condition is a no-go zone
 
 BANDS_ORDER = ["nogo", "close", "beam", "broad", "run"]
+
+# --- learning speed / statistics ---
+EFF_THRESHOLDS = (0.6, 0.7)                   # efficiency levels for the "steps to reach" table
+TIME_THRESHOLD = 0.7                          # level compared on steps/time
+ALPHA = 0.05                                  # significance level of the pairwise tests
+
+# --- compute benchmark ---
+BENCH_STEPS = 30_000                          
+BENCH_SEED = 42                               
+INFER_ACTIONS = 5_000                         # actions timed for the inference benchmark
+RUN_CPU_CONTROL = False                       # also re-measure everything on CPU (doubles runtime)
 
 # --- plotting ---
 SMOOTH = 25                                   # rolling-average window for learning curves
@@ -54,3 +70,7 @@ MODELS_DIR = _ROOT / "results" / "models"
 METRICS_DIR = _ROOT / "results" / "metrics"
 PLOTS_DIR_EVAL = _ROOT / f"results/plots/{TIME_STEPS}/evaluation"
 PLOTS_DIR_TRAIN = _ROOT / f"results/plots/{TIME_STEPS}/training"
+
+# --- generated metric files ---
+BENCHMARK_CSV = METRICS_DIR / "benchmark_time.csv"
+EVAL_BY_WIND_CSV = METRICS_DIR / "eval_by_wind.csv"

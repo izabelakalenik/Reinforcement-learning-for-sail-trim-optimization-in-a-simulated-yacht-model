@@ -10,38 +10,29 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from utils.logging_csv import CSVLoggingCallback
 from training.helpers import StaticNormalizeObs, ActionNoiseDecayCallback
 from training.validation import BestModelCheckpoint
+from main.config import VAL_EPISODES, VAL_MAX_STEPS, EVAL_FREQ
 
 DDPG_NOISE_FINAL_SIGMA = 0.10
 DDPG_NOISE_INITIAL_SIGMA = 0.30
+
+ALGORITHM_CLASSES = {
+    "PPO": PPO,
+    "SAC": SAC,
+    "DDPG": DDPG,
+    "TD3": TD3,
+}
 
 def linear_schedule(initial_value: float, min_value: float = 1e-5):
     def func(progress_remaining: float) -> float:
         return max(min_value, progress_remaining * initial_value)
     return func
 
-def train(
-    algorithm: str,
-    total_timesteps: int,
-    model_path: str,
-    training_metrics_csv_path: str,
-    algo_params: Optional[Dict] = None,
-    env_kwargs: Optional[Dict] = None,
-    seed: Optional[int] = None,
-    eval_wind_csv_path: Optional[str] = None,
-):
-    
-    algorithms = {
-        "PPO": PPO,
-        "SAC": SAC,
-        "DDPG": DDPG,
-        "TD3": TD3,
-    }
-
-    default_params = {
+def default_params(algorithm: str) -> Dict:
+    params = {
         "PPO": {
             "learning_rate": linear_schedule(3e-4),
             "n_steps": 2048,
-            "batch_size": 256,  
+            "batch_size": 256,
             "n_epochs": 10,
             "gamma": 0.99,
             "gae_lambda": 0.95,
@@ -77,7 +68,7 @@ def train(
             "verbose": 1,
         },
         "TD3": {
-            "learning_rate": linear_schedule(3e-4), 
+            "learning_rate": linear_schedule(3e-4),
             "buffer_size": int(1e6),
             "batch_size": 256,
             "gamma": 0.98,
@@ -92,13 +83,24 @@ def train(
             "verbose": 1,
         },
     }
+    return params.get(algorithm.upper(), {})
 
-    model_algo = algorithms.get(algorithm.upper())
+def train(
+    algorithm: str,
+    total_timesteps: int,
+    model_path: str,
+    training_metrics_csv_path: str,
+    algo_params: Optional[Dict] = None,
+    env_kwargs: Optional[Dict] = None,
+    seed: Optional[int] = None,
+    eval_wind_csv_path: Optional[str] = None,
+):
+
+    model_algo = ALGORITHM_CLASSES.get(algorithm.upper())
     if model_algo is None:
         raise ValueError("Unsupported algorithm. Use PPO, SAC, DDPG, or TD3.")
 
-    algo_defaults = default_params.get(algorithm.upper(), {})
-    algo_kwargs = dict(algo_defaults)
+    algo_kwargs = dict(default_params(algorithm))
     if algo_params:
         algo_kwargs.update(algo_params)
 
@@ -130,15 +132,6 @@ def train(
         return env
 
     def wrap_vecnorm(venv, training):
-        """
-        Running-statistics normalization (VecNormalize) keeps shifting its mean/std
-        during training. That is fine for on-policy PPO (fresh rollouts each update)
-        but corrupts off-policy DDPG/SAC/TD3: replayed transitions were normalized
-        with stale stats, making the critic chase a non-stationary target. So PPO
-        uses VecNormalize for both obs and reward, while off-policy methods get
-        static, bounds-based obs normalization (StaticNormalizeObs in make_env) and
-        unnormalized rewards.
-        """
         venv = VecNormalize(venv, norm_obs=is_on_policy, norm_reward=is_on_policy, clip_obs=10.0)
         venv.training = training
         if not training:
@@ -154,7 +147,7 @@ def train(
     env = wrap_vecnorm(env, training=True)
 
     eval_seed = (seed + 1000) if seed is not None else None
-    eval_env = DummyVecEnv([lambda: make_env(env_seed=eval_seed, max_steps=400,
+    eval_env = DummyVecEnv([lambda: make_env(env_seed=eval_seed, max_steps=VAL_MAX_STEPS,
                                              wind_csv_path=eval_wind_csv_path)])
     eval_env = wrap_vecnorm(eval_env, training=False)
 
@@ -169,8 +162,8 @@ def train(
         eval_env=eval_env,
         model_path=model_path,
         vecnorm_path=vecnorm_path,
-        n_eval_episodes=12,
-        eval_freq=20000,
+        n_eval_episodes=VAL_EPISODES,
+        eval_freq=EVAL_FREQ,
         sync_norm=is_on_policy,
         verbose=1,
     )

@@ -5,9 +5,8 @@ import pandas as pd
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from main.config import SEEDS, SUFFIX, MAX_EPISODE_STEPS, ALGORITHMS, SMOOTH, MIN_REF_SPEED, METRICS_DIR
-
-THRESHOLDS = (0.6, 0.7)   # trim-efficiency levels for the "steps to reach" metric
+from main.config import (SEEDS, SUFFIX, MAX_EPISODE_STEPS, ALGORITHMS, SMOOTH, MIN_REF_SPEED,
+                         METRICS_DIR, EFF_THRESHOLDS)
 
 
 def _seed_csvs(algo, seeds):
@@ -34,7 +33,7 @@ def _curve_metrics(csv_path, thresholds):
     return out
 
 
-def compute(seeds, thresholds=(0.5, 0.6)):
+def compute(seeds, thresholds=EFF_THRESHOLDS):
     rows = {}
     for algo in ALGORITHMS:
         csvs = _seed_csvs(algo, seeds)
@@ -56,7 +55,7 @@ def _fmt_steps(mean_std):
     return f"{mean/1000:.0f}k±{std/1000:.0f}k" if std else f"{mean/1000:.0f}k"
 
 
-def main(seeds=SEEDS, thresholds=THRESHOLDS):
+def main(seeds=SEEDS, thresholds=EFF_THRESHOLDS):
     res = compute(seeds, tuple(thresholds))
     if not res:
         print("No training CSVs found for those seeds.")

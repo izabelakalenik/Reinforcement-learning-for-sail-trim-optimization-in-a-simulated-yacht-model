@@ -9,12 +9,11 @@ if str(_ROOT) not in sys.path:
 from training.evaluate import make_eval_venv, ALGOS, build_ceiling_efficiency_lookup
 from utils.plot_deterministic import _scatter_seeds
 from main.config import (TIME_STEPS, SEEDS, SUFFIX, N_EPISODES, EVAL_SEED, ALGORITHMS,
-                    COLORS, WIND_TEST, METRICS_DIR, PLOTS_DIR_EVAL, TWA_BINS, BAND_LABELS,
-                    MODELS_DIR)
+                    COLORS, WIND_TEST, PLOTS_DIR_EVAL, TWA_BINS, BAND_LABELS,
+                    MODELS_DIR, EVAL_BY_WIND_CSV)
 
 BINS = [0, 2, 4, 6, 8, 10, 12]
 BIN_LABELS = ["0-2", "2-4", "4-6", "6-8", "8-10", "10-12"]
-_CACHE = METRICS_DIR / "eval_by_wind.csv"
 MIN_CELL = 5
 
 
@@ -50,12 +49,12 @@ def _per_episode(algo, suffix, ceil_lookup, n_episodes=N_EPISODES):
 
 
 def collect(seeds=SEEDS, suffix=SUFFIX):
-    if _CACHE.exists():
-        cached = pd.read_csv(_CACHE)
+    if EVAL_BY_WIND_CSV.exists():
+        cached = pd.read_csv(EVAL_BY_WIND_CSV)
         if {"seed", "effceil"}.issubset(cached.columns):
-            print(f"Loading cached per-episode data from {_CACHE}")
+            print(f"Loading cached per-episode data from {EVAL_BY_WIND_CSV}")
             return cached
-        print(f"Cache {_CACHE} missing 'seed'/'effceil' - recomputing.")
+        print(f"Cache {EVAL_BY_WIND_CSV} missing 'seed'/'effceil' - recomputing.")
     print(f"Collecting deterministic test episodes over seeds {list(seeds)} ...")
     ceil_lookup = build_ceiling_efficiency_lookup()
     frames = []
@@ -66,9 +65,9 @@ def collect(seeds=SEEDS, suffix=SUFFIX):
                 frames.append(pd.DataFrame({"algo": algo, "seed": s, "wind_speed": res[0],
                                             "twa": res[1], "eff": res[2], "effceil": res[3]}))
     df = pd.concat(frames, ignore_index=True)
-    _CACHE.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(_CACHE, index=False)
-    print(f"Saved per-episode data -> {_CACHE}")
+    EVAL_BY_WIND_CSV.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(EVAL_BY_WIND_CSV, index=False)
+    print(f"Saved per-episode data -> {EVAL_BY_WIND_CSV}")
     return df
 
 
