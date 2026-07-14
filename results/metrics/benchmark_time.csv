@@ -1,0 +1,5 @@
+algo,sec_per_step,steps_per_sec,learning_min,validation_min,total_min,action_selection_us
+SAC,0.014789,67.6,122.03,2.56,124.59,1143.6
+DDPG,0.008232,121.5,67.28,1.52,68.8,523.8
+TD3,0.007645,130.8,62.49,1.41,63.89,646.7
+PPO,0.000453,2209.5,3.77,0.72,4.49,213.3

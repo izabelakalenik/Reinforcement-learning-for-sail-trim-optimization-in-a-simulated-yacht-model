@@ -6,10 +6,17 @@ from scipy import stats
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
-from main.config import SEEDS, SUFFIX, ALGORITHMS, METRICS_DIR
+from main.config import (SEEDS, SUFFIX, ALGORITHMS, METRICS_DIR, BENCHMARK_CSV,
+                         ALPHA, TIME_THRESHOLD)
 from training.learning_speed import _seed_csvs, _curve_metrics
 
-ALPHA = 0.05
+
+def _sec_per_step():
+    if not BENCHMARK_CSV.exists():
+        raise FileNotFoundError(
+            f"Missing {BENCHMARK_CSV}. Run: python -m training.benchmark_time")
+    df = pd.read_csv(BENCHMARK_CSV)
+    return dict(zip(df["algo"], df["sec_per_step"].astype(float)))
 
 
 def _eta_per_seed(seeds):
@@ -33,6 +40,22 @@ def _aulc_per_seed(seeds):
             csvs = _seed_csvs(a, [s])
             if csvs:
                 vals.append(_curve_metrics(csvs[0], ())["AULC"])
+        data[a] = vals
+    return data
+
+
+def _time_per_seed(seeds, threshold=TIME_THRESHOLD):
+    cost = _sec_per_step()
+    data = {}
+    for a in ALGORITHMS:
+        vals = []
+        for s in seeds:
+            csvs = _seed_csvs(a, [s])
+            if not csvs:
+                continue
+            steps = _curve_metrics(csvs[0], (threshold,))[f"steps_to_{threshold}"]
+            if np.isfinite(steps):
+                vals.append(steps * cost[a] / 60.0)
         data[a] = vals
     return data
 
@@ -73,6 +96,7 @@ def _pairwise(data, label):
 def main(seeds=SEEDS):
     _pairwise(_eta_per_seed(seeds), "Final efficiency  η = v/v_ref")
     _pairwise(_aulc_per_seed(seeds), "Learning speed  (AULC)")
+    _pairwise(_time_per_seed(seeds), f"Computation time to threshold {TIME_THRESHOLD} (min)")
 
 
 if __name__ == "__main__":

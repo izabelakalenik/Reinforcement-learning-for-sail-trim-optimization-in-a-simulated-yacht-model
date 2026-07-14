@@ -18,10 +18,6 @@ Four algorithms are trained and compared, covering on-policy and off-policy fami
 - **DDPG** (Deep Deterministic Policy Gradient) - off-policy
 - **TD3** (Twin Delayed DDPG) - off-policy
 
-Each agent's speed is evaluated against a **reference speed** (from real polar data) and
-against the **best speed achievable inside the simulator** (a brute-forced ceiling), which
-separates the physics gap from the control gap.
-
 ## Simulator
 
 The simulation environment is built on the open-source [`gym-sailing: A sailing environment for OpenAI Gym / Gymnasium`](https://github.com/Gabo-Tor/gym-sailing) simulator by
@@ -49,7 +45,7 @@ Training and evaluation use a new Gymnasium environment, `SailTrimEnv`, which ca
 - `"human"` - a live pygame window (shown below) to watch the agent trim in real time,
 - `"rgb_array"` - returns each frame as an RGB array, e.g. to record a video.
 
-The mode is selected by the `RENDER_MODE` setting in [`config.py`](main/config.py).
+The mode is selected by the `RENDER_MODE` setting in [`main/config.py`](main/config.py).
 
 <p align="center">
   <img alt="SailTrimEnv visualization" src="https://github.com/user-attachments/assets/be6fbe27-4d93-455f-b6c2-7096d9a8d1bd" width="410">
@@ -72,8 +68,8 @@ so evaluation is done on wind the model never saw during training.
 | Location | Contents |
 |---|---|
 | `results/models/` | Trained models (`.zip`) and observation-normalization stats (`.pkl`) |
-| `results/metrics/` | Training logs (`results_*.csv`), deterministic-eval results (`eval_*.csv`), summaries (`eval_summary.csv`, `eval_by_wind.csv`) |
-| `results/plots/500000/training/` | Learning curves, reward, speed error, per-condition training plots |
+| `results/metrics/` | Training logs (`results_*.csv`), deterministic-eval results (`eval_*.csv`), summaries (`eval_summary.csv`, `eval_by_wind.csv`), compute-time measurement (`benchmark_time.csv`) |
+| `results/plots/500000/training/` | Learning curves, reward, speed error, per-condition training plots, compute-cost comparison |
 | `results/plots/500000/evaluation/` | Deterministic test plots: overall efficiency, per point-of-sail, per wind speed, and a heatmap |
 
 ## Setup
@@ -92,10 +88,35 @@ On **Windows / PowerShell**, force UTF-8 output so logs and plots containing `°
 $env:PYTHONIOENCODING = "utf-8"
 ```
 
+## Configuration
+
+Every setting lives in a single file, [`main/config.py`](main/config.py) - there are no
+command-line arguments anywhere in the project. Change a value there and every script picks
+it up. The main groups are:
+
+| Group | Settings |
+|---|---|
+| Simulation | `FIXED_HEADING`, `RENDER_MODE` |
+| Training | `TIME_STEPS`, `MAX_EPISODE_STEPS`, `SEEDS`, `SUFFIX`, `ALGORITHMS` |
+| Validation (best-model checkpointing) | `VAL_EPISODES`, `VAL_MAX_STEPS`, `EVAL_FREQ` |
+| Evaluation | `N_EPISODES`, `EVAL_SEED`, `MIN_REF_SPEED`, `BANDS_ORDER` |
+| Learning speed / statistics | `EFF_THRESHOLDS`, `TIME_THRESHOLD`, `ALPHA` |
+| Compute benchmark | `BENCH_STEPS`, `BENCH_SEED`, `INFER_ACTIONS`, `RUN_CPU_CONTROL` |
+| Plotting | `SMOOTH`, `COLORS`, `TWA_BINS`, `BAND_LABELS` |
+| Data paths | `WIND_RAW_NC`, `POLAR_RAW_POL`, `DEFAULT_POLAR_CSV`, `DEFAULT_WIND_CSV`, `WIND_TRAIN` / `WIND_VAL` / `WIND_TEST` |
+| Output paths | `MODELS_DIR`, `METRICS_DIR`, `PLOTS_DIR_TRAIN`, `PLOTS_DIR_EVAL`, `BENCHMARK_CSV`, `EVAL_BY_WIND_CSV` |
+
+`SUFFIX` tags one experiment run: models and CSVs are named `{seed}{SUFFIX}` (e.g. `42v2`).
+Bumping it starts a fresh set of runs without overwriting the previous ones - but the
+analysis scripts then only see runs with the **current** `SUFFIX`.
+
+Hyperparameters of the four algorithms are not in the config: they live in
+`default_params()` in [`training/train.py`](training/train.py), which the compute benchmark
+imports as well, so both always measure the same configuration.
+
 ## Running the full pipeline
 
-All scripts run as modules from the repository root and take **no command-line arguments** -
-settings (algorithms, seeds, step counts, paths) are in [`config.py`](main/config.py).
+All scripts run as modules from the repository root and take **no command-line arguments**.
 
 **1. Prepare the data** - download the necessary datasets and place them in the appropriate directories (only needed once - the processed CSVs are already included):
 
@@ -120,19 +141,28 @@ python -m main.run_ppo      # or: run_sac, run_ddpg, run_td3
 python -m training.evaluate
 ```
 
-**4. Learning-speed metrics and statistical significance tests:**
+**4. Measure the computation cost** of each algorithm:
 
 ```bash
-python -m training.learning_speed
-python -m training.statistical_tests
+python -m training.benchmark_time
 ```
 
-**5. Generate the figures:**
+Set `RUN_CPU_CONTROL = True` in the config to additionally re-measure everything on the CPU.
+
+**5. Learning-speed metrics and statistical significance tests:**
+
+```bash
+python -m training.learning_speed         # AULC + steps to reach EFF_THRESHOLDS
+python -m training.statistical_tests      # pairwise t Welch / U Mann-Whitney
+```
+
+**6. Generate the figures:**
 
 ```bash
 python -m utils.plot_training_results     # training curves & summaries
 python -m utils.plot_deterministic        # test plots: overall, per point-of-sail, ceiling
 python -m utils.plot_wind_speed           # test plots: per wind speed + heatmap
+python -m utils.plot_compute_time         # compute cost: ms/step, steps and time to threshold (needs step 4)
 ```
 
 ## Results
@@ -168,4 +198,18 @@ bunched lower; none reaches the reference during training.
 <p align="center">
   <img src="results/plots/500000/training/01_trim_efficiency_cumulative.png" alt="Learning curves - trim efficiency over training" width="550">
 </p>
+
+---
+
+The plots below break the cost of reaching the 0.7 efficiency threshold into the cost of one
+environment step, the steps needed, and the resulting wall-clock time.
+
+<p align="center">
+  <img src="results/plots/500000/training/08_compute_time.png" alt="Computation cost of learning" width="700">
+</p>
+
+**SAC needs the fewest steps (~49k vs ~176k for PPO), but the most time.** An off-policy step
+runs a gradient update on every environment step, making it ~30x more expensive than a PPO
+step, so the ranking **reverses in wall-clock time**: PPO reaches the threshold in ~1.3 min,
+SAC in ~12 min, DDPG and TD3 in 23-29 min.
 
